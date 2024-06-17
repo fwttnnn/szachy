@@ -2,3 +2,10 @@ szachy
 ======
 
 Chess game written in Ada.
+
+Building
+--------
+
+Simply invoke:
+
+    ./build.sh
