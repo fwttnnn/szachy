@@ -1,7 +1,7 @@
 szachy
 ======
 
-Chess game written in Ada.
+Chess sim written in Ada using libpgn.
 
 Building
 --------
