@@ -20,8 +20,8 @@ procedure Szachy is
     BOARD_MAX_ROW : constant Integer := 7;
     BOARD_MAX_COL : constant Integer := 7;
 
-    BOARD_WIDTH : constant Integer := BOARD_MAX_COL + 1;
-    BOARD_HEIGHT : constant Integer := BOARD_MAX_ROW + 1;
+    BOARD_WIDTH : constant Integer := BOARD_MAX_ROW + 1;
+    BOARD_HEIGHT : constant Integer := BOARD_MAX_COL + 1;
 
     type Board_Mat_Row is range 0 .. BOARD_MAX_ROW;
     type Board_Mat_Col is range 0 .. BOARD_MAX_COL;
@@ -73,6 +73,11 @@ procedure Szachy is
     begin
         return (P = Player'(White) and Is_Upper(piece)) or (P = BLACK and Is_Lower(piece));
     end Is_Piece_Eq_To_Player;
+
+    function Is_Coor_Inside_Board (X, Y : Integer) return Boolean is
+    begin
+        return (X >= 0 and X <= BOARD_MAX_ROW) and (Y >= 0 and Y <= BOARD_MAX_COL);
+    end Is_Coor_Inside_Board;
 
     procedure Move_Castles (Board : in out Board_Mat; P : Player; Player_Move : pgn_move_t) is
     begin
@@ -139,11 +144,62 @@ procedure Szachy is
         return FALSE;
     end Move_Pawn_Possible;
 
+    function Move_Knight_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+        Dest_X : Integer := char'Pos (Player_Move.Dest.X) - Character'Pos ('a');
+        Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
+    begin
+        if (Is_Coor_Inside_Board(X - 1, Y + 2) and (X - 1 = Dest_X and Y + 2 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 2), Board_Mat_Col (X - 1)));
+        end if;
+        if (Is_Coor_Inside_Board(X + 1, Y + 2) and (X + 1 = Dest_X and Y + 2 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 2), Board_Mat_Col (X + 1)));
+        end if;
+
+        if (Is_Coor_Inside_Board(X - 2, Y + 1) and (X - 2 = Dest_X and Y + 1 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X - 2)));
+        end if;
+        if (Is_Coor_Inside_Board(X + 2, Y + 1) and (X + 2 = Dest_X and Y + 1 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X + 2)));
+        end if;
+
+        if (Is_Coor_Inside_Board(X - 1, Y - 2) and (X - 1 = Dest_X and Y - 2 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 2), Board_Mat_Col (X - 1)));
+        end if;
+        if (Is_Coor_Inside_Board(X + 1, Y - 2) and (X + 1 = Dest_X and Y - 2 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 2), Board_Mat_Col (X + 1)));
+        end if;
+
+        if (Is_Coor_Inside_Board(X - 2, Y - 1) and (X - 2 = Dest_X and Y - 1 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X - 2)));
+        end if;
+        if (Is_Coor_Inside_Board(X + 2, Y - 1) and (X + 2 = Dest_X and Y - 1 = Dest_Y)) then
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X + 2)));
+        end if;
+        return FALSE;
+    end Move_Knight_Possible;
+
+    function Move_Bishop_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+        Dest_X : Integer := char'Pos (Player_Move.Dest.X) - Character'Pos ('a');
+        Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
+    begin
+        for I in 1 .. BOARD_MAX_COL loop
+            if (X + I = Dest_X and Y + I = Dest_Y) then return Is_Coor_Inside_Board(X + I, Y + I); end if;
+            if (X + I = Dest_X and Y - I = Dest_Y) then return Is_Coor_Inside_Board(X + I, Y - I); end if;
+            if (X - I = Dest_X and Y - I = Dest_Y) then return Is_Coor_Inside_Board(X - I, Y - I); end if;
+            if (X - I = Dest_X and Y + I = Dest_Y) then return Is_Coor_Inside_Board(X - I, Y + I); end if;
+        end loop;
+        return FALSE;
+    end Move_Bishop_Possible;
+
     function Move_Is_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
     begin
         case Player_Move.Piece is
             when PGN_PIECE_PAWN =>
                 return Move_Pawn_Possible (Board, P, X, Y, Player_Move);
+            when PGN_PIECE_KNIGHT =>
+                return Move_Knight_Possible (Board, P, X, Y, Player_Move);
+            when PGN_PIECE_BISHOP =>
+                return Move_Bishop_Possible (Board, P, X, Y, Player_Move);
             when others =>
                 return FALSE;
         end case;
