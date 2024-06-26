@@ -17,15 +17,15 @@ procedure Szachy is
 
     type Player is (White, Black);
 
-    BOARD_MAX_ROW : constant Integer := 7;
     BOARD_MAX_COL : constant Integer := 7;
+    BOARD_MAX_ROW : constant Integer := 7;
 
-    BOARD_WIDTH : constant Integer := BOARD_MAX_ROW + 1;
-    BOARD_HEIGHT : constant Integer := BOARD_MAX_COL + 1;
+    BOARD_WIDTH : constant Integer := BOARD_MAX_COL + 1;
+    BOARD_HEIGHT : constant Integer := BOARD_MAX_ROW + 1;
 
-    type Board_Mat_Row is range 0 .. BOARD_MAX_ROW;
     type Board_Mat_Col is range 0 .. BOARD_MAX_COL;
-    type Board_Mat is array (Board_Mat_Row, Board_Mat_Col) of Character;
+    type Board_Mat_Row is range 0 .. BOARD_MAX_ROW;
+    type Board_Mat is array (Board_Mat_Col, Board_Mat_Row) of Character;
 
     Board : Board_Mat := 
         (( 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r' ),
@@ -39,10 +39,10 @@ procedure Szachy is
 
     procedure Put_Board_Line (Board : Board_Mat) is
     begin
-        for I in Board_Mat_Row loop
+        for I in Board_Mat_Col loop
             Put (Integer (-(Integer (I) - BOARD_WIDTH)), Width => 0);
 
-            for J in Board_Mat_Col loop
+            for J in Board_Mat_Row loop
                 Put (" ");
                 Put (Board (I, J));
             end loop;
@@ -123,8 +123,8 @@ procedure Szachy is
                 if (X = Dest_X and Y - 2 = Dest_Y) then return TRUE; end if;
 
                 if (Boolean (Player_Move.Captures)) then
-                    if (X - 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X - 1))); end if;
-                    if (X + 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X + 1))); end if;
+                    if (X - 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 1), Board_Mat_Row (X - 1))); end if;
+                    if (X + 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 1), Board_Mat_Row (X + 1))); end if;
                 end if;
 
                 if (Boolean (Player_Move.En_Passant) and X - 1 = Dest_X and Y - 1 = Dest_Y) then return TRUE; end if;
@@ -134,8 +134,8 @@ procedure Szachy is
                 if (X = Dest_X and y + 2 = Dest_Y) then return TRUE; end if;
 
                 if (Boolean (Player_Move.Captures)) then
-                    if (X - 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X - 1))); end if;
-                    if (X + 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X + 1))); end if;
+                    if (X - 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 1), Board_Mat_Row (X - 1))); end if;
+                    if (X + 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 1), Board_Mat_Row (X + 1))); end if;
                 end if;
 
                 if (Boolean (Player_Move.En_Passant) and X - 1 = Dest_X and Y + 1 = Dest_Y) then return TRUE; end if;
@@ -149,31 +149,31 @@ procedure Szachy is
         Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
     begin
         if (Is_Coor_Inside_Board(X - 1, Y + 2) and (X - 1 = Dest_X and Y + 2 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 2), Board_Mat_Col (X - 1)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 2), Board_Mat_Row (X - 1)));
         end if;
         if (Is_Coor_Inside_Board(X + 1, Y + 2) and (X + 1 = Dest_X and Y + 2 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 2), Board_Mat_Col (X + 1)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 2), Board_Mat_Row (X + 1)));
         end if;
 
         if (Is_Coor_Inside_Board(X - 2, Y + 1) and (X - 2 = Dest_X and Y + 1 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X - 2)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 1), Board_Mat_Row (X - 2)));
         end if;
         if (Is_Coor_Inside_Board(X + 2, Y + 1) and (X + 2 = Dest_X and Y + 1 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X + 2)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y + 1), Board_Mat_Row (X + 2)));
         end if;
 
         if (Is_Coor_Inside_Board(X - 1, Y - 2) and (X - 1 = Dest_X and Y - 2 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 2), Board_Mat_Col (X - 1)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 2), Board_Mat_Row (X - 1)));
         end if;
         if (Is_Coor_Inside_Board(X + 1, Y - 2) and (X + 1 = Dest_X and Y - 2 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 2), Board_Mat_Col (X + 1)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 2), Board_Mat_Row (X + 1)));
         end if;
 
         if (Is_Coor_Inside_Board(X - 2, Y - 1) and (X - 2 = Dest_X and Y - 1 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X - 2)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 1), Board_Mat_Row (X - 2)));
         end if;
         if (Is_Coor_Inside_Board(X + 2, Y - 1) and (X + 2 = Dest_X and Y - 1 = Dest_Y)) then
-            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X + 2)));
+            return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y - 1), Board_Mat_Row (X + 2)));
         end if;
         return FALSE;
     end Move_Knight_Possible;
@@ -191,6 +191,57 @@ procedure Szachy is
         return FALSE;
     end Move_Bishop_Possible;
 
+    function Move_Rook_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+        Dest_X : Integer := char'Pos (Player_Move.Dest.X) - Character'Pos ('a');
+        Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
+    begin
+        for I in X + 1 .. BOARD_MAX_COL loop
+            exit when Board(Board_Mat_Col (Y), Board_Mat_Row (I)) /= ' ' and Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y), Board_Mat_Row (I)));
+            exit when Board(Board_Mat_Col (Y), Board_Mat_Row (I)) /= ' ' and not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y), Board_Mat_Row (I))) and not (I = Dest_X and Y = Dest_Y);
+            if (I = Dest_X and Y = Dest_Y) then return Is_Coor_Inside_Board(I, Y); end if;
+        end loop;
+
+        for I in reverse 0 .. X - 1 loop
+            exit when Board(Board_Mat_Col (Y), Board_Mat_Row (I)) /= ' ' and Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y), Board_Mat_Row (I)));
+            exit when Board(Board_Mat_Col (Y), Board_Mat_Row (I)) /= ' ' and not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (Y), Board_Mat_Row (I))) and not (I = Dest_X and Y = Dest_Y);
+            if (I = Dest_X and Y = Dest_Y) then return Is_Coor_Inside_Board(I, Y); end if;
+        end loop;
+
+        for I in Y + 1 .. BOARD_MAX_COL loop
+            exit when Board(Board_Mat_Col (I), Board_Mat_Row (X)) /= ' ' and Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (I), Board_Mat_Row (X)));
+            exit when Board(Board_Mat_Col (I), Board_Mat_Row (X)) /= ' ' and not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (I), Board_Mat_Row (X))) and not (X = Dest_X and I = Dest_Y);
+            if (X = Dest_X and I = Dest_Y) then return Is_Coor_Inside_Board(X, I); end if;
+        end loop;
+
+        for I in reverse 0 .. Y - 1 loop
+            exit when Board(Board_Mat_Col (I), Board_Mat_Row (X)) /= ' ' and Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (I), Board_Mat_Row (X)));
+            exit when Board(Board_Mat_Col (I), Board_Mat_Row (X)) /= ' ' and not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Col (I), Board_Mat_Row (X))) and not (X = Dest_X and I = Dest_Y);
+            if (X = Dest_X and I = Dest_Y) then return Is_Coor_Inside_Board(X, I); end if;
+        end loop;
+
+        return FALSE;
+    end Move_Rook_Possible;
+
+    function Move_King_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+        Dest_X : Integer := char'Pos (Player_Move.Dest.X) - Character'Pos ('a');
+        Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
+    begin
+        for I in 0 .. 3 - 1 loop
+            if (X - 1 + I = Dest_X and Y + 1 = Dest_Y) then return Is_Coor_Inside_Board(X - 1 + I, Y + 1); end if;
+            if (X - 1 + I = Dest_X and Y - 1 = Dest_Y) then return Is_Coor_Inside_Board(X - 1 + I, Y - 1); end if;
+        end loop;
+
+        if (X - 1 = Dest_X and Y = Dest_Y) then return Is_Coor_Inside_Board(X - 1, Y); end if;
+        if (X + 1 = Dest_X and Y = Dest_Y) then return Is_Coor_Inside_Board(X + 1, Y); end if;
+
+        return FALSE;
+    end Move_King_Possible;
+
+    function Move_Queen_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+    begin
+        return Move_King_Possible (Board, P, X, Y, Player_Move) or Move_Rook_Possible (Board, P, X, Y, Player_Move) or Move_Bishop_Possible (Board, P, X, Y, Player_Move);
+    end Move_Queen_Possible;
+
     function Move_Is_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
     begin
         case Player_Move.Piece is
@@ -200,6 +251,12 @@ procedure Szachy is
                 return Move_Knight_Possible (Board, P, X, Y, Player_Move);
             when PGN_PIECE_BISHOP =>
                 return Move_Bishop_Possible (Board, P, X, Y, Player_Move);
+            when PGN_PIECE_ROOK =>
+                return Move_Rook_Possible (Board, P, X, Y, Player_Move);
+            when PGN_PIECE_QUEEN =>
+                return Move_Queen_Possible (Board, P, X, Y, Player_Move);
+            when PGN_PIECE_KING =>
+                return Move_King_Possible (Board, P, X, Y, Player_Move);
             when others =>
                 return FALSE;
         end case;
@@ -214,23 +271,23 @@ procedure Szachy is
             return;
         end if;
 
-        for I in Board_Mat_Row loop
-            for J in Board_Mat_Col loop
+        for I in Board_Mat_Col loop
+            for J in Board_Mat_Row loop
                 if (To_Upper (Board(I, J)) = Character (Pgn_Piece_To_Char (Player_Move.Piece)) and Is_Piece_Eq_To_Player (P, Board(I, J))) then
                     X := Integer (J);
                     Y := Integer (I);
-
-                    -- TODO: make use of Player_Move.From.* coordinate
-                    if (Move_Is_Possible (Board, P, X, Y, Player_Move)) then
-                        Board(Board_Mat_Row (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a')) := Board(I, J);
+                    
+                    if ((Player_Move.From.Y /= PGN_COORDINATE_UNKNOWN and Y /= -(Integer (Player_Move.From.Y) - BOARD_HEIGHT)) or
+                        (char'Pos (Player_Move.From.X) /= PGN_COORDINATE_UNKNOWN and X /= char'Pos (Player_Move.From.X) - Character'Pos ('a'))) then
+                        null;
+                    elsif (Move_Is_Possible (Board, P, X, Y, Player_Move)) then
+                        Board(Board_Mat_Col (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a')) := Board(I, J);
                         Board(I, J) := ' ';
 
                         if (Player_Move.En_Passant) then
-                            Board(Board_Mat_Row (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH) + (if P = Player'(White) then 1 else -1)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a') + 1) := ' ';
+                            Board(Board_Mat_Col (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH) + (if P = Player'(White) then 1 else -1)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a') + 1) := ' ';
                         end if;
 
-                        Put_Board_Line (Board);
-                        New_Line;
                         return;
                     end if;
                 end if;
@@ -249,9 +306,17 @@ begin
     for I in 0 .. Pgn.moves.length - 1 loop
         Pgn_Move := Moves_Access_Nth (Pgn.Moves, I);
 
+        Put_Line ("White's Move: " & Interfaces.C.To_Ada (Pgn_Move.White.Notation));
         Move (Board, Player'(White), Pgn_Move.White);
+        Put_Board_Line (Board);
+        New_Line;
+
+        Put_Line ("Black's Move: " & Interfaces.C.To_Ada (Pgn_Move.Black.Notation));
         Move (Board, Player'(Black), Pgn_Move.Black);
+        Put_Board_Line (Board);
+        New_Line;
     end loop;
 
     Pgn_Cleanup (Pgn);
 end Szachy;
+
