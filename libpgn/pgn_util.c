@@ -1,4 +1,4 @@
-#include "interface.h"
+#include "pgn_util.h"
 
 void moves_foreach(pgn_moves_t *moves, void (*callback)(pgn_move_t *move))
 {
@@ -6,4 +6,9 @@ void moves_foreach(pgn_moves_t *moves, void (*callback)(pgn_move_t *move))
         callback(&moves->values[i].white);
         callback(&moves->values[i].black);
     }
+}
+
+__pgn_moves_item_t *moves_access_nth(pgn_moves_t *moves, unsigned long nth)
+{
+    return &moves->values[nth];
 }

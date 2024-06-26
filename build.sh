@@ -1,3 +1,4 @@
 #!/bin/bash
 
-gnatmake szachy.adb -Ilibpgn -largs -lpgn
+gcc -c libpgn/pgn_util.c
+gnatmake szachy.adb -Ilibpgn -largs pgn_util.o -lpgn
