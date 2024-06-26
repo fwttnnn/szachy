@@ -3,6 +3,11 @@ szachy
 
 Chess sim written in Ada using libpgn.
 
+Prerequisite
+------------
+
+    - Installed libpgn globally
+
 Building
 --------
 
