@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gnatmake szachy.adb
+gnatmake szachy.adb -Ilibpgn -largs -lpgn
