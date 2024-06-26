@@ -1,4 +1,6 @@
 with pgn_h; use pgn_h;
+with pgn_coordinate_h; use pgn_coordinate_h;
+with pgn_piece_h; use pgn_piece_h;
 with pgn_moves_h; use pgn_moves_h;
 with pgn_util_h; use pgn_util_h;
 
@@ -15,8 +17,14 @@ procedure Szachy is
 
     type Player is (White, Black);
 
-    type Board_Mat_Row is range 1 .. 8;
-    type Board_Mat_Col is range 1 .. 8;
+    BOARD_MAX_ROW : constant Integer := 7;
+    BOARD_MAX_COL : constant Integer := 7;
+
+    BOARD_WIDTH : constant Integer := BOARD_MAX_COL + 1;
+    BOARD_HEIGHT : constant Integer := BOARD_MAX_ROW + 1;
+
+    type Board_Mat_Row is range 0 .. BOARD_MAX_ROW;
+    type Board_Mat_Col is range 0 .. BOARD_MAX_COL;
     type Board_Mat is array (Board_Mat_Row, Board_Mat_Col) of Character;
 
     Board : Board_Mat := 
@@ -32,7 +40,7 @@ procedure Szachy is
     procedure Put_Board_Line (Board : Board_Mat) is
     begin
         for I in Board_Mat_Row loop
-            Put (Integer (-(I - 8 - 1)), Width => 0);
+            Put (Integer (-(Integer (I) - BOARD_WIDTH)), Width => 0);
 
             for J in Board_Mat_Col loop
                 Put (" ");
@@ -45,7 +53,7 @@ procedure Szachy is
         Put (" ");
         for I in Board_Mat_Row loop
             Put (" ");
-            Put (Character'Val (Character'Pos ('a') + I - 1));
+            Put (Character'Val (Character'Pos ('a') + I));
         end loop;
         New_Line;
     end Put_Board_Line;
@@ -53,11 +61,11 @@ procedure Szachy is
     procedure Put_Banner is
     begin
         New_Line;
-        Put_Line ("        '||                            ");
-        Put_Line ("  ....   || ..     ....   ....   ....  ");
-        Put_Line (".|   ''  ||' ||  .|...|| ||. '  ||. '  ");
-        Put_Line ("||       ||  ||  ||      . '|.. . '|.. ");
-        Put_Line (" '|...' .||. ||.  '|...' |'..|' |'..|' ");
+        Put_Line ("        '||                           ");
+        Put_Line ("  ....   || ..     ....   ....   .... ");
+        Put_Line (".|   ''  ||' ||  .|...|| ||. '  ||. ' ");
+        Put_Line ("||       ||  ||  ||      . '|.. . '|..");
+        Put_Line (" '|...' .||. ||.  '|...' |'..|' |'..|'");
         New_Line;
     end Put_Banner;
 
@@ -72,46 +80,106 @@ procedure Szachy is
             when PGN_CASTLING_KINGSIDE =>
                 case P is
                     when Player'(White) =>
-                        board(8, 5) := ' ';
-                        board(8, 6) := 'R';
-                        board(8, 7) := 'K';
-                        board(8, 8) := ' ';
+                        board(7, 4) := ' ';
+                        board(7, 5) := 'R';
+                        board(7, 6) := 'K';
+                        board(7, 7) := ' ';
                     when Player'(Black) =>
-                        board(1, 5) := ' ';
-                        board(1, 6) := 'r';
-                        board(1, 7) := 'k';
-                        board(1, 8) := ' ';
+                        board(0, 4) := ' ';
+                        board(0, 5) := 'r';
+                        board(0, 6) := 'k';
+                        board(0, 7) := ' ';
                 end case;
             when PGN_CASTLING_QUEENSIDE =>
                 case P is
                     when Player'(White) =>
-                        board(8, 1) := ' ';
-                        board(8, 3) := 'K';
-                        board(8, 4) := 'R';
-                        board(8, 6) := ' ';
+                        board(7, 0) := ' ';
+                        board(7, 2) := 'K';
+                        board(7, 3) := 'R';
+                        board(7, 5) := ' ';
                     when Player'(Black) =>
-                        board(1, 1) := ' ';
-                        board(1, 3) := 'k';
-                        board(1, 4) := 'r';
-                        board(1, 6) := ' ';
+                        board(0, 0) := ' ';
+                        board(0, 2) := 'k';
+                        board(0, 3) := 'r';
+                        board(0, 5) := ' ';
                 end case;
             when others =>
                 Put_Line ("szachy: unreachable!");
         end case;
     end Move_Castles;
 
-    procedure Move_Pawn (Board : in out Board_Mat; P : Player; Player_Move : pgn_move_t) is
+    function Move_Pawn_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+        Dest_X : Integer := char'Pos (Player_Move.Dest.X) - Character'Pos ('a');
+        Dest_Y : Integer := -(Integer (Player_Move.Dest.Y) - BOARD_HEIGHT);
     begin
-        Put_Line (Interfaces.C.To_Ada (Player_Move.Notation));
-    end Move_Pawn;
+        case P is
+            when Player'(White) =>
+                if (X = Dest_X and Y - 1 = Dest_Y) then return TRUE; end if;
+                if (X = Dest_X and Y - 2 = Dest_Y) then return TRUE; end if;
+
+                if (Boolean (Player_Move.Captures)) then
+                    if (X - 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X - 1))); end if;
+                    if (X + 1 = Dest_X and Y - 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y - 1), Board_Mat_Col (X + 1))); end if;
+                end if;
+
+                if (Boolean (Player_Move.En_Passant) and X - 1 = Dest_X and Y - 1 = Dest_Y) then return TRUE; end if;
+                if (Boolean (Player_Move.En_Passant) and X + 1 = Dest_X and Y - 1 = Dest_Y) then return TRUE; end if;
+            when Player'(Black) =>
+                if (X = Dest_X and y + 1 = Dest_Y) then return TRUE; end if;
+                if (X = Dest_X and y + 2 = Dest_Y) then return TRUE; end if;
+
+                if (Boolean (Player_Move.Captures)) then
+                    if (X - 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X - 1))); end if;
+                    if (X + 1 = Dest_X and Y + 1 = Dest_Y) then return not Is_Piece_Eq_To_Player(P, Board(Board_Mat_Row (Y + 1), Board_Mat_Col (X + 1))); end if;
+                end if;
+
+                if (Boolean (Player_Move.En_Passant) and X - 1 = Dest_X and Y + 1 = Dest_Y) then return TRUE; end if;
+                if (Boolean (Player_Move.En_Passant) and X + 1 = Dest_X and Y + 1 = Dest_Y) then return TRUE; end if;
+        end case;
+        return FALSE;
+    end Move_Pawn_Possible;
+
+    function Move_Is_Possible (Board : in out Board_Mat; P : Player; X, Y : Integer; Player_Move : pgn_move_t) return Boolean is
+    begin
+        case Player_Move.Piece is
+            when PGN_PIECE_PAWN =>
+                return Move_Pawn_Possible (Board, P, X, Y, Player_Move);
+            when others =>
+                return FALSE;
+        end case;
+    end Move_Is_Possible;
 
     procedure Move (Board : in out Board_Mat; P : Player; Player_Move : pgn_move_t) is
+        X : Integer;
+        Y : Integer;
     begin
         if (Player_Move.Castles /= 0) then
             Move_Castles (Board, P, Player_Move);
             return;
         end if;
 
+        for I in Board_Mat_Row loop
+            for J in Board_Mat_Col loop
+                if (To_Upper (Board(I, J)) = Character (Pgn_Piece_To_Char (Player_Move.Piece)) and Is_Piece_Eq_To_Player (P, Board(I, J))) then
+                    X := Integer (J);
+                    Y := Integer (I);
+
+                    -- TODO: make use of Player_Move.From.* coordinate
+                    if (Move_Is_Possible (Board, P, X, Y, Player_Move)) then
+                        Board(Board_Mat_Row (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a')) := Board(I, J);
+                        Board(I, J) := ' ';
+
+                        if (Player_Move.En_Passant) then
+                            Board(Board_Mat_Row (-(Integer (Player_Move.Dest.Y) - BOARD_WIDTH) + (if P = Player'(White) then 1 else -1)), char'Pos (Player_Move.Dest.X) - Character'Pos ('a') + 1) := ' ';
+                        end if;
+
+                        Put_Board_Line (Board);
+                        New_Line;
+                        return;
+                    end if;
+                end if;
+            end loop;
+        end loop;
     end Move;
 
 begin
@@ -120,6 +188,7 @@ begin
 
     Put_Banner;
     Put_Board_Line (Board);
+    New_Line;
 
     for I in 0 .. Pgn.moves.length - 1 loop
         Pgn_Move := Moves_Access_Nth (Pgn.Moves, I);

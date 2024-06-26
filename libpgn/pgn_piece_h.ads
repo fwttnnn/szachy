@@ -23,6 +23,11 @@ package pgn_piece_h is
       PGN_PIECE_QUEEN,
       PGN_PIECE_KING)
    with Convention => C;  -- /usr/include/pgn/piece.h:17
+
+   function Pgn_Piece_To_Char (piece : pgn_piece_t) return char
+   with Import => True, 
+        Convention => C, 
+        External_Name => "pgn_piece_to_char";
 end pgn_piece_h;
 
 pragma Style_Checks (On);
