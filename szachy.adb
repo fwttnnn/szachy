@@ -86,26 +86,26 @@ procedure Szachy is
                 case P is
                     when Player'(White) =>
                         board(7, 4) := ' ';
-                        board(7, 5) := 'R';
-                        board(7, 6) := 'K';
+                        board(7, 5) := To_Upper (Pgn_Piece_To_Char (PGN_PIECE_ROOK));
+                        board(7, 6) := To_Upper (Pgn_Piece_To_Char (PGN_PIECE_KING));
                         board(7, 7) := ' ';
                     when Player'(Black) =>
                         board(0, 4) := ' ';
-                        board(0, 5) := 'r';
-                        board(0, 6) := 'k';
+                        board(0, 5) := Pgn_Piece_To_Char (PGN_PIECE_ROOK);
+                        board(0, 6) := Pgn_Piece_To_Char (PGN_PIECE_KING);
                         board(0, 7) := ' ';
                 end case;
             when PGN_CASTLING_QUEENSIDE =>
                 case P is
                     when Player'(White) =>
                         board(7, 0) := ' ';
-                        board(7, 2) := 'K';
-                        board(7, 3) := 'R';
+                        board(7, 2) := To_Upper (Pgn_Piece_To_Char (PGN_PIECE_KING));
+                        board(7, 3) := To_Upper (Pgn_Piece_To_Char (PGN_PIECE_ROOK));
                         board(7, 5) := ' ';
                     when Player'(Black) =>
                         board(0, 0) := ' ';
-                        board(0, 2) := 'k';
-                        board(0, 3) := 'r';
+                        board(0, 2) := Pgn_Piece_To_Char (PGN_PIECE_KING);
+                        board(0, 3) := Pgn_Piece_To_Char (PGN_PIECE_ROOK);
                         board(0, 5) := ' ';
                 end case;
             when others =>
