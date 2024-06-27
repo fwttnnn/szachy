@@ -239,6 +239,7 @@ package body Board is
                     X := Integer (J);
                     Y := Integer (I);
                     
+		    -- What the fuck?
                     if ((Player_Move.From.Y /= PGN_COORDINATE_UNKNOWN and Y /= -(Integer (Player_Move.From.Y) - BOARD_HEIGHT)) or
                         (char'Pos (Player_Move.From.X) /= PGN_COORDINATE_UNKNOWN and X /= char'Pos (Player_Move.From.X) - Character'Pos ('a'))) then
                         null;
