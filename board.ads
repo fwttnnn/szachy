@@ -25,6 +25,7 @@ package Board is
          ( 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P' ),
          ( 'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R' ));
 
+    procedure Put_Board (Board : Board_Mat);
     procedure Put_Board_Line (Board : Board_Mat);
     procedure Move (Board : in out Board_Mat; P : Player_T; Player_Move : pgn_move_t);
 

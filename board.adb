@@ -15,7 +15,7 @@ package body Board is
     use pgn_piece_h;
     use pgn_coordinate_h;
 
-    procedure Put_Board_Line (Board : Board_Mat) is
+    procedure Put_Board (Board : Board_Mat) is
     begin
         for I in Board_Mat_Col loop
             Put (Integer (-(Integer (I) - BOARD_WIDTH)), Width => 0);
@@ -33,6 +33,11 @@ package body Board is
             Put (" ");
             Put (Character'Val (Character'Pos ('a') + I));
         end loop;
+    end Put_Board;
+
+    procedure Put_Board_Line (Board : Board_Mat) is
+    begin
+        Put_Board (Board);
         New_Line;
     end Put_Board_Line;
 
